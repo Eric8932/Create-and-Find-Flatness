@@ -26,10 +26,6 @@ The pretrained model could be downloaded from [link](https://share.weiyun.com/vs
 
 ### Text Classification
 
-We set rho to 0.65, the coefficient of Find loss to 50000 and the the coefficient for accumulating Fisher is 0.95.
-We 
-
-
 #### Training models in Sequence Order1 (3tasks) and Sampled Setting
 
 We use sequence order1 and sampled setting to illustrate the fine-tuning of different methods
@@ -37,38 +33,61 @@ We use sequence order1 and sampled setting to illustrate the fine-tuning of diff
 ```
 # Example for Sequentially fine-tuning
 
-python3 finetune/run_cls_cf.py  --pretrained_model_path models/bert_base_en_uncased_model.bin --vocab_path models/google_uncased_en_vocab.txt --config_path models/bert/base_config.json \
+python3 finetune/run_cls_seq.py  --pretrained_model_path models/bert_base_en_uncased_model.bin --vocab_path models/google_uncased_en_vocab.txt \
 --batch_size 8 --learning_rate 3e-5 --seq_length 256 \
---train_path None --dev_path None --log_path log/CF_sampled_order1_seed7.log \
---config_path models/bert/base_config.json --output_model_path models \
+--train_path None --dev_path None --log_path log/seq_sampled_order1.log \
+--config_path models/bert/base_config.json \
 --embedding word_pos_seg --encoder transformer --mask fully_visible \
---tasks ag yelp yahoo --epochs 4 3 2 \
---rho 0.65  --adaptive --lamda 100000 --n_labeled 2000 --n_val 2000 --fisher_estimation_sample_size 1024 --seed 7 ;
+--tasks ag yelp yahoo \
+ --epochs 4 3 2 --replay --n_labeled 2000 --n_val 2000  --seed 7 ;
 ```
 
 ```
 # Example for Sequentially fine-tuning with Replay
+
+python3 finetune/run_cls_seq.py  --pretrained_model_path models/bert_base_en_uncased_model.bin --vocab_path models/google_uncased_en_vocab.txt \
+--batch_size 8 --learning_rate 3e-5 --seq_length 256 \
+--train_path None --dev_path None --log_path log/replay_sampled_order1.log \
+--config_path models/bert/base_config.json \
+--embedding word_pos_seg --encoder transformer --mask fully_visible \
+--tasks ag yelp yahoo \
+ --epochs 4 3 2 --n_labeled 2000 --n_val 2000  --seed 7;
 ```
 
 ```
 # Example for Elastic Weight Consolidation
+
+python3 finetune/run_cls_ewcloss.py  --pretrained_model_path models/bert_base_en_uncased_model.bin --vocab_path models/google_uncased_en_vocab.txt \
+--batch_size 8 --learning_rate 3e-5 --seq_length 256 \
+--train_path None --dev_path None --log_path log/EWC_sampled_order1.log \
+--config_path models/bert/base_config.json  \
+--embedding word_pos_seg --encoder transformer --mask fully_visible \
+--tasks ag yelp yahoo \
+ --epochs 4 3 2 --lamda 100000 --n_labeled 2000 --n_val 2000 --seed 7; 
 ```
 
 ```
 # Example for Multitask-Learning
-```
 
+python3 finetune/run_cls_mt.py  --pretrained_model_path models/bert_base_en_uncased_model.bin --vocab_path models/google_uncased_en_vocab.txt \
+--batch_size 8 --learning_rate 3e-5 --seq_length 256 \
+--log_path log/mt_3task_sampled.log \
+--config_path models/bert/base_config.json  \
+--embedding word_pos_seg --encoder transformer --mask fully_visible \
+--tasks ag yelp yahoo \
+--epochs_num 3 --evaluate_steps 500  --n_labeled 2000 --n_val 2000  --seed 7;
+```
 
 ```
 # Example for our method C&F
 
 python3 finetune/run_cls_cf.py  --pretrained_model_path models/bert_base_en_uncased_model.bin --vocab_path models/google_uncased_en_vocab.txt --config_path models/bert/base_config.json \
 --batch_size 8 --learning_rate 3e-5 --seq_length 256 \
---train_path None --dev_path None --log_path log/CF_sampled_order1_seed7.log \
---config_path models/bert/base_config.json --output_model_path models \
+--train_path None --dev_path None --log_path log/CF_sampled_order1.log \
+--config_path models/bert/base_config.json  \
 --embedding word_pos_seg --encoder transformer --mask fully_visible \
 --tasks ag yelp yahoo --epochs 4 3 2 \
---rho 0
+--rho 0.65  --adaptive --lamda 50000 --n_labeled 2000 --gamma 0.95 --n_val 500 --fisher_estimation_sample_size 1024 --seed 7 ;
 ```
 
 
@@ -79,8 +98,8 @@ python3 finetune/run_cls_cf.py  --pretrained_model_path models/bert_base_en_unca
 
 python3 finetune/run_cls_cf.py  --pretrained_model_path models/bert_base_en_uncased_model.bin --vocab_path models/google_uncased_en_vocab.txt --config_path models/bert/base_config.json \
 --batch_size 8 --learning_rate 3e-5 --seq_length 256 \
---train_path None --dev_path None --log_path log/CF_full_order4_seed7.log \
---config_path models/bert/base_config.json --output_model_path models \
+--train_path None --dev_path None --log_path log/CF_full_order4.log \
+--config_path models/bert/base_config.json  \
 --embedding word_pos_seg --encoder transformer --mask fully_visible \
 --tasks ag yelp amazon yahoo dbpedia --epochs 4 3 3 2 1 \
 --rho 0.65  --adaptive --lamda 100000 --n_labeled -1 --gamma 0.95 --n_val 500 --fisher_estimation_sample_size 1024 --seed 7 ;
@@ -89,17 +108,16 @@ python3 finetune/run_cls_cf.py  --pretrained_model_path models/bert_base_en_unca
 
 ### Name Entity Recognition with Knowledge Distillation
 
-We set rho to 0.65 and the coefficient of Find loss to 1000. Temperature for KD is 2.
 
 ```
 # Example for CONLL03 dataset on order1.
 
 python3 finetune/run_ner_kd_cf.py  --pretrained_model_path models/bert_base_en_uncased_model.bin --vocab_path models/google_uncased_en_vocab.txt --config_path models/bert/base_config.json \
 --batch_size 32 --learning_rate 5e-5 --seq_length 128 \
---train_path datasets/ConLL03/train.tsv --dev_path datasets/ConLL03/dev.tsv --test_path datasets/ConLL03/test.tsv --log_path log/ConLL03_0123_CF_seed2.log \
---config_path models/bert/base_config.json --output_model_path models/sa_agyelpyahho.bin \
---embedding word_pos_seg --encoder transformer --mask fully_visible   --temperature 2 \
---tasks_order 0 1 2 3 --epochs 20 20 20 20 --rho 0.65 --lamda 1000 --adaptive --fisher_estimation_sample_size 1024  --seed 2 ;
+--train_path datasets/ConLL03/train.tsv --dev_path datasets/ConLL03/dev.tsv --test_path datasets/ConLL03/test.tsv --log_path log/ConLL03_0123_CF.log \
+--config_path models/bert/base_config.json  \
+--embedding word_pos_seg --encoder transformer --mask fully_visible --temperature 2 \
+--tasks_order 0 1 2 3 --epochs 20 20 20 20 --rho 0.65 --lamda 1000 --adaptive --fisher_estimation_sample_size 1024  --seed 7 ;
 ```
 
 

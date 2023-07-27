@@ -163,7 +163,7 @@ class Classifier(nn.Module):
         try:
             losses = []
             for n, p in self.named_parameters():
-                if "output_layers" not in n or (self.dataset_id<task_id and self.dataset_id!=dataset_map_list[task_id] and ("."+str(self.dataset_id)+".") in n):#后者始终不用ewcloss
+                if "output_layers" not in n or (self.dataset_id<task_id and self.dataset_id!=dataset_map_list[task_id] and ("."+str(self.dataset_id)+".") in n):
                 # retrieve the consolidated mean and fisher information.
                     n = n.replace('.', '__')
                     mean = getattr(self, '{}_mean'.format(n))
@@ -597,7 +597,7 @@ def main():
                     help='Epoch number for each task')
     parser.add_argument('--n_labeled', type=int, default=2000,
                         help='Number of training data for each class')
-    parser.add_argument('--n_val', type=int, default=2000,#
+    parser.add_argument('--n_val', type=int, default=2000,
                         help='Number of validation data for each class')
     parser.add_argument('--tasks', nargs='+', type=str,
                     default=['ag', 'yelp', 'amazon', 'yahoo', 'dbpedia'],
@@ -675,7 +675,6 @@ def main():
     load_or_initialize_parameters(args, model)
 
     args.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    # args.device = 'mps'
     model = model.to(args.device)
 
     batch_size = args.batch_size

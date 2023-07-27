@@ -208,7 +208,7 @@ def whitespace_tokenize(text):
     text = text.strip()
     if not text:
         return []
-    tokens = text.split()#默认空格
+    tokens = text.split()
     return tokens
 
 
@@ -257,12 +257,12 @@ class BertTokenizer(Tokenizer):
             self.basic_tokenizer = BasicTokenizer(do_lower_case=args.do_lower_case if is_src else args.tgt_do_lower_case)
             self.wordpiece_tokenizer = WordpieceTokenizer(vocab=self.vocab, unk_token=UNK_TOKEN)
 
-    def tokenize(self, text):#
+    def tokenize(self, text):
         if self.sp_model:
             split_tokens = encode_pieces(self.sp_model, text, return_unicode=False)
         else:
             split_tokens = []
-            for token in self.basic_tokenizer.tokenize(text):#如果这个之后的token数量一致，那我就只取每个的第一个subtoken。如果不一致，再看看怎么改
+            for token in self.basic_tokenizer.tokenize(text):
                 for sub_token in self.wordpiece_tokenizer.tokenize(token):
                     split_tokens.append(sub_token)
 
@@ -274,10 +274,10 @@ class NerengTokenizer(Tokenizer):
     def __init__(self, args, is_src=True):
         super().__init__(args, is_src)
         if not args.spm_model_path:
-            self.basic_tokenizer = BasicNERTokenizer(do_lower_case=args.do_lower_case if is_src else args.tgt_do_lower_case)#默认为true
+            self.basic_tokenizer = BasicNERTokenizer(do_lower_case=args.do_lower_case if is_src else args.tgt_do_lower_case)
             self.wordpiece_tokenizer = WordpieceTokenizer(vocab=self.vocab, unk_token=UNK_TOKEN)
 
-    def tokenize(self, text):#
+    def tokenize(self, text):
         if self.sp_model:
             split_tokens = encode_pieces(self.sp_model, text, return_unicode=False)
         else:
@@ -287,7 +287,7 @@ class NerengTokenizer(Tokenizer):
             # if len(t1) != len(t2):
             #     print("!!!!!!!!!!!!!!!",len(t1),len(t2)) 
             #     return True 
-            for token in self.basic_tokenizer.tokenize(text):#如果这个之后的token数量一致，那我就只取每个的第一个subtoken。如果不一致，再看看怎么改
+            for token in self.basic_tokenizer.tokenize(text):
                 for sub_token in self.wordpiece_tokenizer.tokenize(token):
                     split_tokens.append(sub_token)
                     break
@@ -308,7 +308,7 @@ class BasicNERTokenizer(object):
 
     def tokenize(self, text):
         """Tokenizes a piece of text."""
-        text = convert_to_unicode(text)#如果是字符串，就返回字符串
+        text = convert_to_unicode(text)
         text = self._clean_text(text)
 
         # This was added on November 1st, 2018 for the multilingual and Chinese
@@ -317,9 +317,9 @@ class BasicNERTokenizer(object):
         # and generally don't have any Chinese data in them (there are Chinese
         # characters in the vocabulary because Wikipedia does have some Chinese
         # words in the English Wikipedia.).
-        text = self._tokenize_chinese_chars(text)#只针对中文
+        text = self._tokenize_chinese_chars(text)
 
-        orig_tokens = whitespace_tokenize(text)#用空格划分
+        orig_tokens = whitespace_tokenize(text)
         split_tokens = []
         for token in orig_tokens:
             if self.do_lower_case:
@@ -351,7 +351,7 @@ class BasicNERTokenizer(object):
         while i < len(chars):
             char = chars[i]
             if _is_punctuation(char):
-                if len(output)!=0:#是不是标点符号
+                if len(output)!=0:
                     break
                 else:
                     output = char
@@ -409,10 +409,10 @@ class BasicNERTokenizer(object):
         """Performs invalid character removal and whitespace cleanup on text."""
         output = []
         for char in text:
-            cp = ord(char)#返回ascii值
-            if cp == 0 or cp == 0xfffd or _is_control(char):#去掉一些特殊或者超出范围的词
+            cp = ord(char)
+            if cp == 0 or cp == 0xfffd or _is_control(char):
                 continue
-            if _is_whitespace(char):#特殊字符\t \n \r 空格都转为空格
+            if _is_whitespace(char):
                 output.append(" ")
             else:
                 output.append(char)
@@ -529,7 +529,7 @@ class BasicTokenizer(object):
 
     def tokenize(self, text):
         """Tokenizes a piece of text."""
-        text = convert_to_unicode(text)#如果是字符串，就返回字符串
+        text = convert_to_unicode(text)
         text = self._clean_text(text)
 
         # This was added on November 1st, 2018 for the multilingual and Chinese
@@ -538,9 +538,9 @@ class BasicTokenizer(object):
         # and generally don't have any Chinese data in them (there are Chinese
         # characters in the vocabulary because Wikipedia does have some Chinese
         # words in the English Wikipedia.).
-        text = self._tokenize_chinese_chars(text)#只针对中文
+        text = self._tokenize_chinese_chars(text)
 
-        orig_tokens = whitespace_tokenize(text)#用空格划分
+        orig_tokens = whitespace_tokenize(text)
         split_tokens = []
         for token in orig_tokens:
             if self.do_lower_case:
@@ -570,7 +570,7 @@ class BasicTokenizer(object):
         output = []
         while i < len(chars):
             char = chars[i]
-            if _is_punctuation(char):#是不是标点符号
+            if _is_punctuation(char):
                 output.append([char])
                 start_new_word = True
             else:
@@ -621,10 +621,10 @@ class BasicTokenizer(object):
         """Performs invalid character removal and whitespace cleanup on text."""
         output = []
         for char in text:
-            cp = ord(char)#返回ascii值
-            if cp == 0 or cp == 0xfffd or _is_control(char):#去掉一些特殊或者超出范围的词
+            cp = ord(char)
+            if cp == 0 or cp == 0xfffd or _is_control(char):
                 continue
-            if _is_whitespace(char):#特殊字符\t \n \r 空格都转为空格
+            if _is_whitespace(char):
                 output.append(" ")
             else:
                 output.append(char)
