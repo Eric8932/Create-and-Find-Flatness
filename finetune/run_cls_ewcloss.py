@@ -358,7 +358,7 @@ def main():
                         help="...")
     parser.add_argument("--lamda", type=int, default=100000,
                         help="coefficient for ewc_loss")
-    parser.add_argument("--gamma", type=float, default=0,
+    parser.add_argument("--gamma", type=float, default=0.0,
                         help='F(i+1)=F_now+gamma*F_old')
 
     parser.add_argument('--select_best', action='store_false',

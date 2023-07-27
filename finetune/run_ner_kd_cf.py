@@ -196,18 +196,13 @@ class NerTagger(nn.Module):
         ]
         return {n: f for n, f in zip(param_names, fisher_diagonals)}
     
-    def consolidate(self, mask_fisher,gamma):
+    def consolidate(self, mask_fisher,gamma = None):
         for n, p in self.named_parameters():
-                n = n.replace('.', '__')
-                self.register_buffer('{}_mean'.format(n), p.data.clone())
-
-                if hasattr(self,'{}_fisher'.format(n)):
-                    fisher_old = getattr(self, '{}_fisher'.format(n))
-                    fisher_new = fisher_old*gamma + mask_fisher[n].data.clone()
-                    self.register_buffer('{}_fisher'
-                                    .format(n), fisher_new)
-                else:
-                    self.register_buffer('{}_fisher'
+            n = n.replace('.', '__')
+            self.register_buffer('{}_mean'.format(n), p.data.clone())
+            # self.register_buffer('{}_fisher'
+            #                     .format(n), fisher[n].data.clone())
+            self.register_buffer('{}_fisher'
                                     .format(n), mask_fisher[n].data.clone())
 
     def ewc_loss(self, device):
