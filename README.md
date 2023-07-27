@@ -5,8 +5,7 @@ Code and Data for the ECAI 2023 paper *Create and Find Flatness: Building Flat T
 ## Setup
 
 ### Code
-The Code is based on [UER-py](https://github.com/dbiir/UER-py/).
-Requirements and Code Structure are consistent with its.
+The Code is based on [UER-py](https://github.com/dbiir/UER-py/). Requirements and Code Structure are consistent with its.
 
 
 ### Data
@@ -24,7 +23,7 @@ For NER tasks, we used the CoNLL-03 and OntoNotes-5.0 datasets. We put the CoNLL
 
 ## Running the code
 
-#### Text Classification
+### Text Classification
 
 We set rho to 0.65, the coefficient of Find loss to 50000 and the the coefficient for accumulating Fisher is 0.95.
 
@@ -33,7 +32,7 @@ The datasets for Text Classification is provided by LAMOL and could be downloade
 The pretrained model could be downloaded from https://share.weiyun.com/vsul7HBQ.
 We use ```./finetune/run_cls_cf.py``` to train the C&F model for classification:
 
-### Training models in Sampled Setting
+#### Training models in Sampled Setting
 
 ```
 # Example for length-3 task sequence order1
@@ -55,7 +54,7 @@ python3 finetune/run_cls_cf.py  --pretrained_model_path models/bert_base_en_unca
 --rho 0.65  --adaptive --lamda 100000 --n_labeled 2000 --n_val 2000 --fisher_estimation_sample_size 1024 --seed 7 ;
 ```
 
-### Training models in Full Setting
+#### Training models in Full Setting
 
 ```
 # Example for length-5 task sequence order4
@@ -70,7 +69,7 @@ python3 finetune/run_cls_cf.py  --pretrained_model_path models/bert_base_en_unca
 ```
 
 
-#### Name Entity Recognition with Knowledge Distillation
+### Name Entity Recognition with Knowledge Distillation
 
 We set rho to 0.65 and the coefficient of Find loss to 1000. Temperature for KD is 2.
 The datasets for NER could be moved from the supplementary file Data.zip.
