@@ -10,8 +10,8 @@ dataset = {
     'yahoo'  : None,
 }
 
-DATA_DIR = "../data/data"
-SAVE_DIR = "../data"
+DATA_DIR = "../datasets/data"
+SAVE_DIR = "../datasets"
 
 def preprocess(dataset_name, mode):
 

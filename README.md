@@ -10,7 +10,7 @@ The Code is based on [UER-py](https://github.com/dbiir/UER-py/). Requirements an
 
 ### Data
 
-For text classification tasks, we used the data provided by LAMOL. You can find the data from [link to data](https://drive.google.com/file/d/1rWcgnVcNpwxmBI3c5ovNx-E8XKOEL77S/view). Please download it and put it into the datasets folder. Then uncompress and pre-process the data:
+For Text Classification tasks, we used the data provided by LAMOL. You can find the data from [link to data](https://drive.google.com/file/d/1rWcgnVcNpwxmBI3c5ovNx-E8XKOEL77S/view). Please download it and put it into the datasets folder. Then uncompress and pre-process the data:
 ```
 tar -xvzf LAMOL.tar.gz
 cd ../scripts
@@ -110,11 +110,11 @@ python3 finetune/run_cls_cf.py  --pretrained_model_path models/bert_base_en_unca
 
 
 ```
-# Example for CONLL03 dataset on order1.
+# Example for CoNLL-03 dataset on order1.
 
 python3 finetune/run_ner_kd_cf.py  --pretrained_model_path models/bert_base_en_uncased_model.bin --vocab_path models/google_uncased_en_vocab.txt --config_path models/bert/base_config.json \
 --batch_size 32 --learning_rate 5e-5 --seq_length 128 \
---train_path datasets/ConLL03/train.tsv --dev_path datasets/ConLL03/dev.tsv --test_path datasets/ConLL03/test.tsv --log_path log/ConLL03_0123_CF.log \
+--train_path datasets/CoNLL03/train.tsv --dev_path datasets/CoNLL03/dev.tsv --test_path datasets/CoNLL03/test.tsv --log_path log/CoNLL03_0123_CF.log \
 --config_path models/bert/base_config.json  \
 --embedding word_pos_seg --encoder transformer --mask fully_visible --temperature 2 \
 --tasks_order 0 1 2 3 --epochs 20 20 20 20 --rho 0.65 --lamda 1000 --adaptive --fisher_estimation_sample_size 1024  --seed 7 ;
