@@ -12,13 +12,14 @@ The Code is based on [UER-py](https://github.com/dbiir/UER-py/). Requirements an
 
 For text classification tasks, we used the data provided by LAMOL. You can find the data from [link to data](https://drive.google.com/file/d/1rWcgnVcNpwxmBI3c5ovNx-E8XKOEL77S/view). Please download it and put it into the datasets folder. Then uncompress and pre-process the data:
 ```
-
 tar -xvzf LAMOL.tar.gz
 cd ../scripts
 python preprocess.py
-
 ```
 For NER tasks, we used the CoNLL-03 and OntoNotes-5.0 datasets. We put the CoNLL-03 in the ./datasets folder. For OntoNotes-5.0, you could apply for it from [link](https://catalog.ldc.upenn.edu/LDC2013T19) and pre-process it to the same format as the CoNLL-03.
+
+### Model
+The pretrained model could be downloaded from [link](https://share.weiyun.com/vsul7HBQ) and put in the ./models folder.
 
 
 ## Running the code
@@ -26,16 +27,16 @@ For NER tasks, we used the CoNLL-03 and OntoNotes-5.0 datasets. We put the CoNLL
 ### Text Classification
 
 We set rho to 0.65, the coefficient of Find loss to 50000 and the the coefficient for accumulating Fisher is 0.95.
+We 
 
-The datasets for Text Classification is provided by LAMOL and could be downloaded from https://drive.google.com/file/d/1rWcgnVcNpwxmBI3c5ovNx-E8XKOEL77S/view.
 
-The pretrained model could be downloaded from https://share.weiyun.com/vsul7HBQ.
-We use ```./finetune/run_cls_cf.py``` to train the C&F model for classification:
+#### Training models in Sequence Order1 (3tasks) and Sampled Setting
 
-#### Training models in Sampled Setting
+We use sequence order1 and sampled setting to illustrate the fine-tuning of different methods
 
 ```
-# Example for length-3 task sequence order1
+# Example for Sequentially fine-tuning
+
 python3 finetune/run_cls_cf.py  --pretrained_model_path models/bert_base_en_uncased_model.bin --vocab_path models/google_uncased_en_vocab.txt --config_path models/bert/base_config.json \
 --batch_size 8 --learning_rate 3e-5 --seq_length 256 \
 --train_path None --dev_path None --log_path log/CF_sampled_order1_seed7.log \
@@ -43,21 +44,38 @@ python3 finetune/run_cls_cf.py  --pretrained_model_path models/bert_base_en_unca
 --embedding word_pos_seg --encoder transformer --mask fully_visible \
 --tasks ag yelp yahoo --epochs 4 3 2 \
 --rho 0.65  --adaptive --lamda 100000 --n_labeled 2000 --n_val 2000 --fisher_estimation_sample_size 1024 --seed 7 ;
+```
 
-# Example for length-5 task sequence order4
+```
+# Example for Sequentially fine-tuning with Replay
+```
+
+```
+# Example for Elastic Weight Consolidation
+```
+
+```
+# Example for Multitask-Learning
+```
+
+
+```
+# Example for our method C&F
+
 python3 finetune/run_cls_cf.py  --pretrained_model_path models/bert_base_en_uncased_model.bin --vocab_path models/google_uncased_en_vocab.txt --config_path models/bert/base_config.json \
 --batch_size 8 --learning_rate 3e-5 --seq_length 256 \
---train_path None --dev_path None --log_path log/CF_sampled_order4_seed7.log \
+--train_path None --dev_path None --log_path log/CF_sampled_order1_seed7.log \
 --config_path models/bert/base_config.json --output_model_path models \
 --embedding word_pos_seg --encoder transformer --mask fully_visible \
---tasks ag yelp amazon yahoo dbpedia --epochs 4 3 3 2 1 \
---rho 0.65  --adaptive --lamda 100000 --n_labeled 2000 --n_val 2000 --fisher_estimation_sample_size 1024 --seed 7 ;
+--tasks ag yelp yahoo --epochs 4 3 2 \
+--rho 0
 ```
 
-#### Training models in Full Setting
+
+#### Training models in Sequence Order4 (5tasks) and Full Setting
 
 ```
-# Example for length-5 task sequence order4
+# Example for length-5 task and sequence order4
 
 python3 finetune/run_cls_cf.py  --pretrained_model_path models/bert_base_en_uncased_model.bin --vocab_path models/google_uncased_en_vocab.txt --config_path models/bert/base_config.json \
 --batch_size 8 --learning_rate 3e-5 --seq_length 256 \
@@ -72,8 +90,6 @@ python3 finetune/run_cls_cf.py  --pretrained_model_path models/bert_base_en_unca
 ### Name Entity Recognition with Knowledge Distillation
 
 We set rho to 0.65 and the coefficient of Find loss to 1000. Temperature for KD is 2.
-The datasets for NER could be moved from the supplementary file Data.zip.
-We use ```./finetune/run_ner_kd_cf.py``` to train the C&F model for NER:
 
 ```
 # Example for CONLL03 dataset on order1.
