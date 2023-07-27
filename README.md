@@ -1,130 +1,90 @@
 # Create and Find Flatness: Building Flat Training Spaces in Advance for Continual Learning(C&F)
 
-This repo contains codes for the following paper:
+Code and Data for the ECAI 2023 paper *Create and Find Flatness: Building Flat Training Spaces in Advance for Continual Learning*.
 
-*Yufan Huang\*, Yanzhe Zhang\*, Jiaao Chen, Xuezhi Wang, Diyi Yang*: Continual Learning for Text Classification with Information Disentanglement Based Regularization, NAACL 2021. 
+## Setup
 
-If you would like to refer to it, please cite the paper mentioned above.
+### Code
+The Code is based on [UER-py](https://github.com/dbiir/UER-py/).
+Requirements and Code Structure are consistent with its.
 
-## Getting Started
 
-These instructions will get you running the codes of IDBR.
-
-### Requirements
-
-- Python 3.8.5
-- Pytorch 1.4.0
-- transformers 3.5.1
-- tqdm, sklearn, numpy, pandas
-
-Detailed env is included in ```./package-list.txt```.
-
-### Code Structure
-```
-|_src/
-      |_read_data.py --> Codes for reading and processing datasets
-      |_preprocess.py --> Preprocess datasets
-      |_model.py --> Codes for baseline and IDBR model
-      |_finetune.py --> Codes for finetune Baseline
-      |_naivereplay.py --> Codes for naivereplay Baseline
-      |_multitasklearning.py --> Codes for multitasklearning Baseline
-      |_train.py --> Codes for IDBR
-|_data/
-      |_ag/
-      |_amazon/
-      |_dbpedia/
-      |_yelp/
-      |_yahoo/
-      |_data/
-```
-All folders under ```./data``` will be generated automatically in the "Downloading and Pre-processing the data" step.  
-
-### Data: Downloading and Pre-processing
+### Data
 
 For text classification tasks, we used the data provided by LAMOL. You can find the data from [link to data](https://drive.google.com/file/d/1rWcgnVcNpwxmBI3c5ovNx-E8XKOEL77S/view). Please download it and put it into the datasets folder. Then uncompress and pre-process the data:
-
 ```
+
 tar -xvzf LAMOL.tar.gz
 cd ../scripts
 python preprocess.py
 
-For NER tasks, we used the CoNLL-03 and OntoNotes-5.0 datasets. We put the CoNLL-03 in the ./data folder
+```
+For NER tasks, we used the CoNLL-03 and OntoNotes-5.0 datasets. We put the CoNLL-03 in the ./datasets folder. For OntoNotes-5.0, you could apply for it from [link](https://catalog.ldc.upenn.edu/LDC2013T19) and pre-process it to the same format as the CoNLL-03.
+
+
+## Running the code
+
+#### Text Classification
+
+We set rho to 0.65, the coefficient of Find loss to 50000 and the the coefficient for accumulating Fisher is 0.95.
+
+The datasets for Text Classification is provided by LAMOL and could be downloaded from https://drive.google.com/file/d/1rWcgnVcNpwxmBI3c5ovNx-E8XKOEL77S/view.
+
+The pretrained model could be downloaded from https://share.weiyun.com/vsul7HBQ.
+We use ```./finetune/run_cls_cf.py``` to train the C&F model for classification:
+
+### Training models in Sampled Setting
 
 ```
-### Training models in Setting (Sampled)
+# Example for length-3 task sequence order1
+python3 finetune/run_cls_cf.py  --pretrained_model_path models/bert_base_en_uncased_model.bin --vocab_path models/google_uncased_en_vocab.txt --config_path models/bert/base_config.json \
+--batch_size 8 --learning_rate 3e-5 --seq_length 256 \
+--train_path None --dev_path None --log_path log/CF_sampled_order1_seed7.log \
+--config_path models/bert/base_config.json --output_model_path models \
+--embedding word_pos_seg --encoder transformer --mask fully_visible \
+--tasks ag yelp yahoo --epochs 4 3 2 \
+--rho 0.65  --adaptive --lamda 100000 --n_labeled 2000 --n_val 2000 --fisher_estimation_sample_size 1024 --seed 7 ;
 
-Note that in the following exps, default epoch numbers should be set to 4. 
-
-We prune some of them to a smaller number due to certain tasks are easy to overfit.
-
-#### Finetune 
-
-We use ```./src/finetune.py``` to train the Finetune Baseline model:
-
-```
-# Example for length-3 task sequence
-python finetune.py --tasks ag yelp yahoo --epochs 4 3 2   
-
-# Example for length-5 task sequence
-python finetune.py --tasks ag yelp amazon yahoo dbpedia --epochs 4 3 3 2 1   
-```
-
-#### Naive Replay 
-
-We use ```./src/naivereplay.py``` to train the Naive Replay Baseline model:
-
-```
-# Example for length-3 task sequence
-python naivereplay.py --tasks ag yelp yahoo --epochs 4 3 2   
-
-# Example for length-5 task sequence
-python naivereplay.py --tasks ag yelp amazon yahoo dbpedia --epochs 4 3 3 2 1
+# Example for length-5 task sequence order4
+python3 finetune/run_cls_cf.py  --pretrained_model_path models/bert_base_en_uncased_model.bin --vocab_path models/google_uncased_en_vocab.txt --config_path models/bert/base_config.json \
+--batch_size 8 --learning_rate 3e-5 --seq_length 256 \
+--train_path None --dev_path None --log_path log/CF_sampled_order4_seed7.log \
+--config_path models/bert/base_config.json --output_model_path models \
+--embedding word_pos_seg --encoder transformer --mask fully_visible \
+--tasks ag yelp amazon yahoo dbpedia --epochs 4 3 3 2 1 \
+--rho 0.65  --adaptive --lamda 100000 --n_labeled 2000 --n_val 2000 --fisher_estimation_sample_size 1024 --seed 7 ;
 ```
 
-#### Regularization  
-
-We use ```./src/train.py``` to train the Regularization Baseline model: 
+### Training models in Full Setting
 
 ```
-# Example for length-3 task sequence
-python train.py --tasks ag yelp yahoo --epochs 4 3 2 --reg 1 --reggen 0.5 --regspe 0.5 --kmeans True --tskcoe 0.0
+# Example for length-5 task sequence order4
 
-# Example for length-5 task sequence
-python train.py --tasks ag yelp amazon yahoo dbpedia --epochs 4 3 3 2 1 --reg 1 --reggen 0.5 --regspe 0.5 --kmeans True --tskcoe 0.0
+python3 finetune/run_cls_cf.py  --pretrained_model_path models/bert_base_en_uncased_model.bin --vocab_path models/google_uncased_en_vocab.txt --config_path models/bert/base_config.json \
+--batch_size 8 --learning_rate 3e-5 --seq_length 256 \
+--train_path None --dev_path None --log_path log/CF_full_order4_seed7.log \
+--config_path models/bert/base_config.json --output_model_path models \
+--embedding word_pos_seg --encoder transformer --mask fully_visible \
+--tasks ag yelp amazon yahoo dbpedia --epochs 4 3 3 2 1 \
+--rho 0.65  --adaptive --lamda 100000 --n_labeled -1 --gamma 0.95 --n_val 500 --fisher_estimation_sample_size 1024 --seed 7 ;
 ```
 
-#### Information-Disentanglement-Based-Regularization  
 
-While we set reggen to 0.5, we select best regspe from {0.3, 0.4, 0.5}.
+#### Name Entity Recognition with Knowledge Distillation
 
-We use ```./src/train.py``` to train the IDBR model: 
-
-```
-# Example for length-3 task sequence
-python train.py --tasks ag yelp yahoo --epochs 4 3 2 --disen True --reg 1 --reggen 0.5 --regspe 0.3 --kmeans True
-
-
-# Example for length-5 task sequence
-python train.py --tasks ag yelp amazon yahoo dbpedia --epochs 4 3 3 2 1 --reg 1 --reggen 0.5 --regspe 0.3 --kmeans True
-```
-
-#### Multitask Learning 
-
-We use ```./src/multitasklearning.py``` to train the multitask-learning model:
+We set rho to 0.65 and the coefficient of Find loss to 1000. Temperature for KD is 2.
+The datasets for NER could be moved from the supplementary file Data.zip.
+We use ```./finetune/run_ner_kd_cf.py``` to train the C&F model for NER:
 
 ```
-# Multitask Learning
-python multitasklearning.py --tasks ag yelp yahoo
+# Example for CONLL03 dataset on order1.
+
+python3 finetune/run_ner_kd_cf.py  --pretrained_model_path models/bert_base_en_uncased_model.bin --vocab_path models/google_uncased_en_vocab.txt --config_path models/bert/base_config.json \
+--batch_size 32 --learning_rate 5e-5 --seq_length 128 \
+--train_path datasets/ConLL03/train.tsv --dev_path datasets/ConLL03/dev.tsv --test_path datasets/ConLL03/test.tsv --log_path log/ConLL03_0123_CF_seed2.log \
+--config_path models/bert/base_config.json --output_model_path models/sa_agyelpyahho.bin \
+--embedding word_pos_seg --encoder transformer --mask fully_visible   --temperature 2 \
+--tasks_order 0 1 2 3 --epochs 20 20 20 20 --rho 0.65 --lamda 1000 --adaptive --fisher_estimation_sample_size 1024  --seed 2 ;
 ```
 
-### Training models in Setting (Full)
 
-We use ```./src/train.py``` to train the IDBR model: 
-
-```
-python train.py --tasks ag yelp amazon yahoo dbpedia --epochs 1 1 1 1 1 --reg 1 --reggen 0.5 --regspe 0.5 --kmeans True --n-labeled -1 --n-val 500
-```
-
-## Questions
-
-If you have any questions, please contact Yanzhe Zhang via z_yanzhe AT gatech.edu
