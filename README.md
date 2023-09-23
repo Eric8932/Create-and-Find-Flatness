@@ -120,6 +120,19 @@ python3 finetune/run_ner_kd_cf.py  --pretrained_model_path models/bert_base_en_u
 --tasks_order 0 1 2 3 --epochs 20 20 20 20 --rho 0.65 --lamda 1000 --adaptive --fisher_estimation_sample_size 1024  --seed 7 ;
 ```
 
-## Questions
+
+## How to Cite
+
+```bibtex
+@article{shi2023create,
+  title={Create and Find Flatness: Building Flat Training Spaces in Advance for Continual Learning},
+  author={Shi, Wenhang and Chen, Yiren and Zhao, Zhe and Lu, Wei and Yan, Kimmo and Du, Xiaoyong},
+  journal={arXiv preprint arXiv:2309.11305},
+  year={2023}
+}
+```
+
+
+## Contact information
 
 If you have any question, please contact Wenhang Shi via wenhangshi@ruc.edu.cn.
